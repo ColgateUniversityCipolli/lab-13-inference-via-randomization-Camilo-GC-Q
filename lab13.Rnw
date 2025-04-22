@@ -37,10 +37,42 @@ for the the further observations.
   where $f_Z(\cdot)$ and $F_Z(\cdot)$ are the Gaussian PDF and CDF and skew is the
   skewness of the data. What is the potential error in the computation of the 
   $p$-value when testing $H_0: \mu_X=0; H_a: \mu_X<0$ using the zebra finch further data? 
+  
+  <<echo = T, message = F, warning = F>>=
+  library(e1071)
+  finch_data = read_csv("zebrafinches.csv")
+  # View(finch_data)
+  further = finch_data$further
+  n = length(further)
+  t = mean(further) / (sd(further)/sqrt(n))
+  
+  error = (skewness(further) / sqrt(n)) * ((2*t^2 + 1) / 6) * dnorm(t)
+  error
+  @
 
   \item Compute the error for $t$ statistics from -10 to 10 and plot a line
   that shows the error across $t$. Continue to use the skewness and 
   the sample size for the zebra finch further data.
+  
+  <<echo = T, message = F, warning = F>>=
+  library(ggplot2)
+  library(e1071)
+  finch_data = read_csv("zebrafinches.csv")
+  further = finch_data$further
+  n = length(further)
+  t_vals = seq(-10, 10, by = 0.1)
+  error_vals = (skewness(further) / sqrt(n)) * ((2*t_vals^2 + 1) / 6) * dnorm(t_vals)
+  # error_vals
+  df = data.frame(t_vals, error_vals)
+  
+  ggplot(df, aes(x = t_vals, y = error_vals)) +
+    geom_line(color = "blue") +
+    labs(title = "Approximation Error vs. t",
+         x = "t value",
+         y = "Approximation Error") + 
+    theme_minimal()
+  
+  @
 
   \item Suppose we wanted to have a tail probability within 10\% of the desired
   $\alpha=0.05$. Recall we did a left-tailed test using the further data.
@@ -50,6 +82,21 @@ for the the further observations.
   which yields
   \[ n = \left(\frac{\text{skew}}{6(0.10\alpha)} (2t^2 + 1) f_Z(t)\right)^2.\]
 \end{enumerate}
+
+  <<echo = T, message = F, warning = F>>=
+  library(e1071)
+  
+  finch_data = read_csv("zebrafinches.csv")
+  # View(finch_data)
+  further = finch_data$further
+  n = length(further)
+  t = mean(further) / (sd(further)/sqrt(n))
+  skewness(further)
+  alpha = 0.05
+  n = ((skewness(further)/(6*0.1*0.05)) * (2*t^2 + 1) * qt(alpha, df = n - 1))^2
+  n
+  @
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Question 3
@@ -68,6 +115,20 @@ sampling distribution of the $T$ statistic:
   resamples shifted to ensure they are consistent with the null hypotheses at the average 
   (i.e., here ensure the shifted resamples are 0 on average, corresponding
   to $t=0$, for each case). 
+  
+  <<echo = F, message = F, warning = F>>=
+  library(e1071)
+  
+  finch_data = read_csv("zebrafinches.csv")
+  further = finch_data$further
+  n = length(further)
+  N = 10000
+  resamples = replicate(N, )
+  
+  
+  
+  @
+  
   \item Compute the bootstrap $p$-value for each test using the shifted resamples. 
   How do these compare to the $t$-test $p$-values?
     \item What is the 5$^{th}$ percentile of the shifted resamples under the null hypothesis? 
