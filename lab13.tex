@@ -150,20 +150,20 @@ for the the further observations.
 \hldef{finch_data} \hlkwb{=} \hlkwd{read_csv}\hldef{(}\hlsng{"zebrafinches.csv"}\hldef{)}
 \hlcom{# View(finch_data)}
 \hldef{further} \hlkwb{=} \hldef{finch_data}\hlopt{$}\hldef{further}
+\hldef{alpha} \hlkwb{=} \hlnum{0.05}
 \hldef{n} \hlkwb{=} \hlkwd{length}\hldef{(further)}
-\hldef{t} \hlkwb{=} \hlkwd{mean}\hldef{(further)} \hlopt{/} \hldef{(}\hlkwd{sd}\hldef{(further)}\hlopt{/}\hlkwd{sqrt}\hldef{(n))}
+\hldef{t} \hlkwb{=} \hlkwd{qnorm}\hldef{(alpha)}
 \hlkwd{skewness}\hldef{(further)}
 \end{alltt}
 \begin{verbatim}
 ## [1] -1.035507
 \end{verbatim}
 \begin{alltt}
-\hldef{alpha} \hlkwb{=} \hlnum{0.05}
-\hldef{n} \hlkwb{=} \hldef{((}\hlkwd{skewness}\hldef{(further)}\hlopt{/}\hldef{(}\hlnum{6}\hlopt{*}\hlnum{0.1}\hlopt{*}\hlnum{0.05}\hldef{))} \hlopt{*} \hldef{(}\hlnum{2}\hlopt{*}\hldef{t}\hlopt{^}\hlnum{2} \hlopt{+} \hlnum{1}\hldef{)} \hlopt{*} \hlkwd{qt}\hldef{(alpha,} \hlkwc{df} \hldef{= n} \hlopt{-} \hlnum{1}\hldef{))}\hlopt{^}\hlnum{2}
+\hldef{n} \hlkwb{=} \hldef{((}\hlkwd{skewness}\hldef{(further)}\hlopt{/}\hldef{(}\hlnum{6}\hlopt{*}\hlnum{0.1}\hlopt{*}\hlnum{0.05}\hldef{))} \hlopt{*} \hldef{(}\hlnum{2}\hlopt{*}\hldef{t}\hlopt{^}\hlnum{2} \hlopt{+} \hlnum{1}\hldef{)} \hlopt{*} \hlkwd{dnorm}\hldef{(t))}\hlopt{^}\hlnum{2}
 \hldef{n}
 \end{alltt}
 \begin{verbatim}
-## [1] 51901791
+## [1] 520.8876
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -187,15 +187,12 @@ sampling distribution of the $T$ statistic:
   (i.e., here ensure the shifted resamples are 0 on average, corresponding
   to $t=0$, for each case). 
   
-\begin{knitrout}
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in FUN(X[[i]], ...): argument is missing, with no default}}\end{kframe}
-\end{knitrout}
   
   \item Compute the bootstrap $p$-value for each test using the shifted resamples. 
   How do these compare to the $t$-test $p$-values?
+  
+
     \item What is the 5$^{th}$ percentile of the shifted resamples under the null hypothesis? 
   Note this value approximates $t_{0.05, n-1}$. Compare these values in each case.
   \item Compute the bootstrap confidence intervals using the resamples. How do these 
