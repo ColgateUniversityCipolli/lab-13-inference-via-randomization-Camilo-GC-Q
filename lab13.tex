@@ -294,10 +294,56 @@ sampling distribution of the $T$ statistic:
 \hldef{\}}
 \hlcom{# View(further_resamples)}
 
-\hldef{resamples.null.farther} \hlkwb{=} \hldef{further_resamples}\hlopt{$}\hldef{t.stats} \hlopt{-} \hlkwd{mean}\hldef{(further_resamples}\hlopt{$}\hldef{t.stats)}
+\hldef{resamples.null.further} \hlkwb{=} \hldef{further_resamples}\hlopt{$}\hldef{t.stats} \hlopt{-} \hlkwd{mean}\hldef{(further_resamples}\hlopt{$}\hldef{t.stats)}
 \hldef{resamples.null.closer} \hlkwb{=} \hldef{closer_resamples}\hlopt{$}\hldef{t.stats} \hlopt{-} \hlkwd{mean}\hldef{(closer_resamples}\hlopt{$}\hldef{t.stats)}
 \hldef{resamples.null.diff} \hlkwb{=} \hldef{diff_resamples}\hlopt{$}\hldef{t.stats} \hlopt{-} \hlkwd{mean}\hldef{(diff_resamples}\hlopt{$}\hldef{t.stats)}
+
+\hldef{CI_further} \hlkwb{=} \hlkwd{quantile}\hldef{(resamples.null.further,} \hlkwd{c}\hldef{(}\hlnum{0.025}\hldef{,} \hlnum{0.975}\hldef{))}
+\hldef{CI_closer} \hlkwb{=} \hlkwd{quantile}\hldef{(resamples.null.closer,} \hlkwd{c}\hldef{(}\hlnum{0.025}\hldef{,} \hlnum{0.975}\hldef{))}
+\hldef{CI_diff} \hlkwb{=} \hlkwd{quantile}\hldef{(resamples.null.diff,} \hlkwd{c}\hldef{(}\hlnum{0.025}\hldef{,} \hlnum{0.975}\hldef{))}
+
+\hldef{CI_further_t} \hlkwb{=} \hlkwd{mean}\hldef{(further)} \hlopt{+} \hlkwd{c}\hldef{(}\hlopt{-}\hlnum{1}\hldef{,} \hlnum{1}\hldef{)} \hlopt{*} \hlkwd{qt}\hldef{(}\hlnum{0.975}\hldef{,} \hlkwc{df} \hldef{= n}\hlopt{-}\hlnum{1}\hldef{)} \hlopt{*} \hlkwd{sd}\hldef{(further)}\hlopt{/}\hlkwd{sqrt}\hldef{(n)}
+\hldef{CI_closer_t} \hlkwb{=} \hlkwd{mean}\hldef{(closer)} \hlopt{+} \hlkwd{c}\hldef{(}\hlopt{-}\hlnum{1}\hldef{,} \hlnum{1}\hldef{)} \hlopt{*} \hlkwd{qt}\hldef{(}\hlnum{0.975}\hldef{,} \hlkwc{df} \hldef{= n}\hlopt{-}\hlnum{1}\hldef{)} \hlopt{*} \hlkwd{sd}\hldef{(closer)}\hlopt{/}\hlkwd{sqrt}\hldef{(n)}
+\hldef{CI_diff_t} \hlkwb{=} \hlkwd{mean}\hldef{(diff)} \hlopt{+} \hlkwd{c}\hldef{(}\hlopt{-}\hlnum{1}\hldef{,} \hlnum{1}\hldef{)} \hlopt{*} \hlkwd{qt}\hldef{(}\hlnum{0.975}\hldef{,} \hlkwc{df} \hldef{= n}\hlopt{-}\hlnum{1}\hldef{)} \hlopt{*} \hlkwd{sd}\hldef{(diff)}\hlopt{/}\hlkwd{sqrt}\hldef{(n)}
+\hlcom{#Should I use resamples.null.data or just the data}
+\hldef{CI_further}
 \end{alltt}
+\begin{verbatim}
+##      2.5%     97.5% 
+## -2.033830  1.826771
+\end{verbatim}
+\begin{alltt}
+\hldef{CI_further_t}
+\end{alltt}
+\begin{verbatim}
+## [1] -0.2565176 -0.1489313
+\end{verbatim}
+\begin{alltt}
+\hldef{CI_closer}
+\end{alltt}
+\begin{verbatim}
+##      2.5%     97.5% 
+## -1.878078  1.926030
+\end{verbatim}
+\begin{alltt}
+\hldef{CI_closer_t}
+\end{alltt}
+\begin{verbatim}
+## [1] 0.1173875 0.1950586
+\end{verbatim}
+\begin{alltt}
+\hldef{CI_diff}
+\end{alltt}
+\begin{verbatim}
+##      2.5%     97.5% 
+## -1.857155  2.032365
+\end{verbatim}
+\begin{alltt}
+\hldef{CI_diff_t}
+\end{alltt}
+\begin{verbatim}
+## [1] 0.2719028 0.4459921
+\end{verbatim}
 \end{kframe}
 \end{knitrout}
   
@@ -312,7 +358,97 @@ randomization procedure.
 \begin{enumerate}
 \item Now, consider the zebra finch data. We do not know the generating distributions
 for the closer, further, and difference data, so perform the randomization procedure
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hldef{randomization_test} \hlkwb{=} \hlkwa{function}\hldef{(}\hlkwc{data}\hldef{,} \hlkwc{mu0} \hldef{=} \hlnum{0}\hldef{,} \hlkwc{R} \hldef{=} \hlnum{10000}\hldef{)\{}
+  \hldef{x_shift} \hlkwb{=} \hldef{data}\hlopt{-}\hldef{m0}
+  \hldef{rand} \hlkwb{=} \hlkwd{tibble}\hldef{(}\hlkwc{xbars} \hldef{=} \hlkwd{rep}\hldef{(}\hlnum{NA}\hldef{, R))}
+
+  \hlkwa{for} \hldef{(i} \hlkwa{in} \hlnum{1}\hlopt{:}\hldef{R)\{}
+    \hldef{curr.rand} \hlkwb{=} \hldef{x_shift} \hlopt{*} \hlkwd{sample}\hldef{(}\hlkwd{c}\hldef{(}\hlopt{-}\hlnum{1}\hldef{,}\hlnum{1}\hldef{),}
+                          \hlkwd{length}\hldef{(x_shift),}
+                          \hlkwc{replace} \hldef{= T)}
+    \hldef{rand}\hlopt{$}\hldef{xbars[i]} \hlkwb{=} \hlkwd{mean}\hldef{(curr.rand)}
+  \hldef{\}}
+
+  \hldef{rand} \hlkwb{=} \hldef{rand |>}
+    \hlkwd{mutate}\hldef{(}
+      \hlkwc{xbars} \hldef{= xbars} \hlopt{+} \hldef{mu0}
+    \hldef{)}
+  \hlkwd{return}\hldef{(rand}\hlopt{$}\hldef{xbars)}
+\hldef{\}}
+
+\hldef{finch_data} \hlkwb{=} \hlkwd{read_csv}\hldef{(}\hlsng{"zebrafinches.csv"}\hldef{)}
+
+\hldef{rand_further} \hlkwb{=} \hlkwd{randomization_test}\hldef{(finch_data}\hlopt{$}\hldef{further)}
+\hldef{rand_closer} \hlkwb{=} \hlkwd{randomization_test}\hldef{(finch_data}\hlopt{$}\hldef{closer)}
+\hldef{rand_diff} \hlkwb{=} \hlkwd{randomization_test}\hldef{(finch_data}\hlopt{$}\hldef{diff)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
   \item Compute the randomization test $p$-value for each test.
+  
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hldef{randomization_test} \hlkwb{=} \hlkwa{function}\hldef{(}\hlkwc{data}\hldef{,} \hlkwc{mu0} \hldef{=} \hlnum{0}\hldef{,} \hlkwc{R} \hldef{=} \hlnum{10000}\hldef{)\{}
+  \hldef{x_shift} \hlkwb{=} \hldef{data}\hlopt{-}\hldef{m0}
+  \hldef{rand} \hlkwb{=} \hlkwd{tibble}\hldef{(}\hlkwc{xbars} \hldef{=} \hlkwd{rep}\hldef{(}\hlnum{NA}\hldef{, R))}
+
+  \hlkwa{for} \hldef{(i} \hlkwa{in} \hlnum{1}\hlopt{:}\hldef{R)\{}
+    \hldef{curr.rand} \hlkwb{=} \hldef{x_shift} \hlopt{*} \hlkwd{sample}\hldef{(}\hlkwd{c}\hldef{(}\hlopt{-}\hlnum{1}\hldef{,}\hlnum{1}\hldef{),}
+                          \hlkwd{length}\hldef{(x_shift),}
+                          \hlkwc{replace} \hldef{= T)}
+    \hldef{rand}\hlopt{$}\hldef{xbars[i]} \hlkwb{=} \hlkwd{mean}\hldef{(curr.rand)}
+  \hldef{\}}
+
+  \hldef{rand} \hlkwb{=} \hldef{rand |>}
+    \hlkwd{mutate}\hldef{(}
+      \hlkwc{xbars} \hldef{= xbars} \hlopt{+} \hldef{mu0}
+    \hldef{)}
+  \hlkwd{return}\hldef{(rand}\hlopt{$}\hldef{xbars)}
+\hldef{\}}
+
+\hldef{finch_data} \hlkwb{=} \hlkwd{read_csv}\hldef{(}\hlsng{"zebrafinches.csv"}\hldef{)}
+
+\hldef{rand_further} \hlkwb{=} \hlkwd{randomization_test}\hldef{(finch_data}\hlopt{$}\hldef{further)}
+\hldef{rand_closer} \hlkwb{=} \hlkwd{randomization_test}\hldef{(finch_data}\hlopt{$}\hldef{closer)}
+\hldef{rand_diff} \hlkwb{=} \hlkwd{randomization_test}\hldef{(finch_data}\hlopt{$}\hldef{diff)}
+
+\hldef{pval_randomization} \hlkwb{=} \hlkwa{function}\hldef{(}\hlkwc{data}\hldef{,} \hlkwc{rand_samples}\hldef{,} \hlkwc{mu0} \hldef{=} \hlnum{0}\hldef{)\{}
+  \hldef{delta} \hlkwb{=} \hlkwd{abs}\hldef{(}\hlkwd{mean}\hldef{(data)} \hlopt{-} \hldef{mu0)}
+  \hldef{low} \hlkwb{=} \hldef{mu0} \hlopt{-} \hldef{delta}
+  \hldef{high} \hlkwb{=} \hldef{mu0} \hlopt{-} \hldef{delta}
+  \hlkwd{mean}\hldef{(rand_samples} \hlopt{<=} \hldef{low)} \hlopt{+} \hlkwd{mean}\hldef{(rand_samples} \hlopt{>=} \hldef{high)}
+\hldef{\}}
+
+\hldef{pval_further} \hlkwb{=} \hlkwd{pval_randomization}\hldef{(finch_data}\hlopt{$}\hldef{further, rand_further)}
+\hldef{pval_closer} \hlkwb{=} \hlkwd{pval_randomization}\hldef{(finch_data}\hlopt{$}\hldef{closer, rand_closer)}
+\hldef{pval_diff} \hlkwb{=} \hlkwd{pval_randomization}\hldef{(finch_data}\hlopt{$}\hldef{diff, rand_diff)}
+
+\hldef{pval_further}
+\end{alltt}
+\begin{verbatim}
+## [1] 1
+\end{verbatim}
+\begin{alltt}
+\hldef{pval_closer}
+\end{alltt}
+\begin{verbatim}
+## [1] 1
+\end{verbatim}
+\begin{alltt}
+\hldef{pval_diff}
+\end{alltt}
+\begin{verbatim}
+## [1] 1
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+  
   \item Compute the randomization confidence interval by iterating over values of $\mu_0$.\\
   \textbf{Hint:} You can ``search" for the lower bound from $Q_1$ and subtracting by 0.0001, 
   and the upper bound using $Q_3$ and increasing by 0.0001. You will continue until you find 

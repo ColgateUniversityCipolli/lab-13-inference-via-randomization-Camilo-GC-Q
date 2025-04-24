@@ -298,11 +298,24 @@ sampling distribution of the $T$ statistic:
   }
   # View(further_resamples)
   
-  resamples.null.farther = further_resamples$t.stats - mean(further_resamples$t.stats)
+  resamples.null.further = further_resamples$t.stats - mean(further_resamples$t.stats)
   resamples.null.closer = closer_resamples$t.stats - mean(closer_resamples$t.stats)
   resamples.null.diff = diff_resamples$t.stats - mean(diff_resamples$t.stats)
   
-
+  CI_further = quantile(resamples.null.further, c(0.025, 0.975))
+  CI_closer = quantile(resamples.null.closer, c(0.025, 0.975))
+  CI_diff = quantile(resamples.null.diff, c(0.025, 0.975))
+  
+  CI_further_t = mean(further) + c(-1, 1) * qt(0.975, df = n-1) * sd(further)/sqrt(n)
+  CI_closer_t = mean(closer) + c(-1, 1) * qt(0.975, df = n-1) * sd(closer)/sqrt(n)
+  CI_diff_t = mean(diff) + c(-1, 1) * qt(0.975, df = n-1) * sd(diff)/sqrt(n)
+  #Should I use resamples.null.data or just the data
+  CI_further
+  CI_further_t
+  CI_closer
+  CI_closer_t
+  CI_diff
+  CI_diff_t
   
   @
   
@@ -317,11 +330,116 @@ randomization procedure.
 \begin{enumerate}
 \item Now, consider the zebra finch data. We do not know the generating distributions
 for the closer, further, and difference data, so perform the randomization procedure
+
+  <<echo = T, message = F, warning = F>>=
+  
+  randomization_test = function(data, mu0 = 0, R = 10000){
+    x_shift = data-m0
+    rand = tibble(xbars = rep(NA, R))
+    
+    for (i in 1:R){
+      curr.rand = x_shift * sample(c(-1,1), 
+                            length(x_shift),
+                            replace = T)
+      rand$xbars[i] = mean(curr.rand)
+    }
+    
+    rand = rand |>
+      mutate(
+        xbars = xbars + mu0
+      )
+    return(rand$xbars)
+  }
+  
+  finch_data = read_csv("zebrafinches.csv")
+  
+  rand_further = randomization_test(finch_data$further)
+  rand_closer = randomization_test(finch_data$closer)
+  rand_diff = randomization_test(finch_data$diff)
+  
+  
+  @
+
   \item Compute the randomization test $p$-value for each test.
+  
+  <<echo = T, message = F, warning = F>>=
+  
+  randomization_test = function(data, mu0 = 0, R = 10000){
+    x_shift = data-m0
+    rand = tibble(xbars = rep(NA, R))
+    
+    for (i in 1:R){
+      curr.rand = x_shift * sample(c(-1,1), 
+                            length(x_shift),
+                            replace = T)
+      rand$xbars[i] = mean(curr.rand)
+    }
+    
+    rand = rand |>
+      mutate(
+        xbars = xbars + mu0
+      )
+    return(rand$xbars)
+  }
+  
+  finch_data = read_csv("zebrafinches.csv")
+  
+  rand_further = randomization_test(finch_data$further)
+  rand_closer = randomization_test(finch_data$closer)
+  rand_diff = randomization_test(finch_data$diff)
+  
+  pval_randomization = function(data, rand_samples, mu0 = 0){
+    delta = abs(mean(data) - mu0)
+    low = mu0 - delta
+    high = mu0 - delta
+    mean(rand_samples <= low) + mean(rand_samples >= high)
+  }
+  
+  pval_further = pval_randomization(finch_data$further, rand_further)
+  pval_closer = pval_randomization(finch_data$closer, rand_closer)
+  pval_diff = pval_randomization(finch_data$diff, rand_diff)
+  
+  pval_further
+  pval_closer
+  pval_diff
+  
+  @
+  
   \item Compute the randomization confidence interval by iterating over values of $\mu_0$.\\
   \textbf{Hint:} You can ``search" for the lower bound from $Q_1$ and subtracting by 0.0001, 
   and the upper bound using $Q_3$ and increasing by 0.0001. You will continue until you find 
   the first value for which the two-sided $p$-value is greater than or equal to 0.05.
+  <<echo = F, message = F, warning = F>>=
+    randomization_test = function(data, mu0 = 0, R = 10000){
+    x_shift = data-m0
+    rand = tibble(xbars = rep(NA, R))
+    
+    for (i in 1:R){
+      curr.rand = x_shift * sample(c(-1,1), 
+                            length(x_shift),
+                            replace = T)
+      rand$xbars[i] = mean(curr.rand)
+    }
+    
+    rand = rand |>
+      mutate(
+        xbars = xbars + mu0
+      )
+    return(rand$xbars)
+  }
+  
+  pval_randomization = function(data, rand_samples, mu0 = 0){
+    delta = abs(mean(data) - mu0)
+    low = mu0 - delta
+    high = mu0 - delta
+    mean(rand_samples <= low) + mean(rand_samples >= high)
+  }
+  
+  CI_randomization = function(data, alpha = 0.05, step = 0.0005){
+    mu
+  }
+  
+  @
 \end{enumerate}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
