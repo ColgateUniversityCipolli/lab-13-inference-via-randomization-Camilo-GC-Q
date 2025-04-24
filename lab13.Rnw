@@ -116,7 +116,7 @@ sampling distribution of the $T$ statistic:
   (i.e., here ensure the shifted resamples are 0 on average, corresponding
   to $t=0$, for each case). 
   
-  <<echo = F, message = F, warning = F>>=
+  <<echo = T, message = F, warning = F>>=
   library(e1071)
   
   finch_data = read_csv("zebrafinches.csv")
@@ -148,7 +148,7 @@ sampling distribution of the $T$ statistic:
   closer_resamples$t.stats[i] = mean(new_closer_resample)/(sd(closer)/sqrt(n))
   diff_resamples$t.stats[i] = mean(new_diff_resample)/(sd(diff)/sqrt(n))
   }
-  View(further_resamples)
+  # View(further_resamples)
   
   resamples.null.farther = further_resamples$t.stats - mean(further_resamples$t.stats)
   resamples.null.closer = closer_resamples$t.stats - mean(closer_resamples$t.stats)
@@ -193,7 +193,7 @@ sampling distribution of the $T$ statistic:
   closer_resamples$t.stats[i] = mean(new_closer_resample)/(sd(closer)/sqrt(n))
   diff_resamples$t.stats[i] = mean(new_diff_resample)/(sd(diff)/sqrt(n))
   }
-  View(further_resamples)
+  # View(further_resamples)
   
   resamples.null.farther = further_resamples$t.stats - mean(further_resamples$t.stats)
   resamples.null.closer = closer_resamples$t.stats - mean(closer_resamples$t.stats)
@@ -204,11 +204,108 @@ sampling distribution of the $T$ statistic:
   pval_farther = mean(resamples.null.farther <= mean(further_resamples$t.stats))
   pval_closer = mean(resamples.null.closer >= mean(closer_resamples$t.stats))
   pval_diff = mean(resamples.null.diff >= mean(diff)/(sd(diff)/sqrt(n)))
+  
+  pval_farther
+  pval_closer
+  pval_diff
   @
     \item What is the 5$^{th}$ percentile of the shifted resamples under the null hypothesis? 
   Note this value approximates $t_{0.05, n-1}$. Compare these values in each case.
+  
+  <<echo = F, message = F, warning = F>>=
+  library(e1071)
+  
+  finch_data = read_csv("zebrafinches.csv")
+  further = finch_data$further
+  closer = finch_data$closer
+  diff = finch_data$diff
+  n = nrow(finch_data)
+  m0 = 0
+  
+  set.seed(123)
+  R <- 10000
+  further_resamples <- tibble(t.stats=rep(NA, R))
+  closer_resamples = tibble(t.stats=rep(NA, R))
+  diff_resamples = tibble(t.stats=rep(NA, R))
+  for(i in 1:R){
+    new_further_resample = sample(further,
+                       size = n,
+                       replace = T)
+    
+    new_closer_resample = sample(closer,
+                       size = n,
+                       replace = T)
+    
+    new_diff_resample = sample(diff,
+                       size = n,
+                       replace = T)
+  
+  further_resamples$t.stats[i] <- mean(new_further_resample)/(sd(further)/sqrt(n))
+  closer_resamples$t.stats[i] = mean(new_closer_resample)/(sd(closer)/sqrt(n))
+  diff_resamples$t.stats[i] = mean(new_diff_resample)/(sd(diff)/sqrt(n))
+  }
+  # View(further_resamples)
+  
+  resamples.null.farther = further_resamples$t.stats - mean(further_resamples$t.stats)
+  resamples.null.closer = closer_resamples$t.stats - mean(closer_resamples$t.stats)
+  resamples.null.diff = diff_resamples$t.stats - mean(diff_resamples$t.stats)
+  
+  q_further = quantile(resamples.null.farther, 0.05)
+  q_closer = quantile(resamples.null.closer, 0.05)
+  q_diff = quantile(resamples.null.diff, 0.05)
+  
+  print(paste(q_further, "is the 5th percentile of the shifted further data resamples"))
+  print(paste(q_closer, "is the 5th percentile of the shifted closer data resamples"))
+  print(paste(q_diff, "is the 5th percentile of the shifted diff data resamples"))
+
+  @
+  
   \item Compute the bootstrap confidence intervals using the resamples. How do these 
   compare to the $t$-test confidence intervals?
+  
+  <<echo = T, message = F, warning = F>>=
+  
+  library(e1071)
+  
+  finch_data = read_csv("zebrafinches.csv")
+  further = finch_data$further
+  closer = finch_data$closer
+  diff = finch_data$diff
+  n = nrow(finch_data)
+  m0 = 0
+  
+  set.seed(123)
+  R <- 10000
+  further_resamples <- tibble(t.stats=rep(NA, R))
+  closer_resamples = tibble(t.stats=rep(NA, R))
+  diff_resamples = tibble(t.stats=rep(NA, R))
+  for(i in 1:R){
+    new_further_resample = sample(further,
+                       size = n,
+                       replace = T)
+    
+    new_closer_resample = sample(closer,
+                       size = n,
+                       replace = T)
+    
+    new_diff_resample = sample(diff,
+                       size = n,
+                       replace = T)
+  
+  further_resamples$t.stats[i] <- mean(new_further_resample)/(sd(further)/sqrt(n))
+  closer_resamples$t.stats[i] = mean(new_closer_resample)/(sd(closer)/sqrt(n))
+  diff_resamples$t.stats[i] = mean(new_diff_resample)/(sd(diff)/sqrt(n))
+  }
+  # View(further_resamples)
+  
+  resamples.null.farther = further_resamples$t.stats - mean(further_resamples$t.stats)
+  resamples.null.closer = closer_resamples$t.stats - mean(closer_resamples$t.stats)
+  resamples.null.diff = diff_resamples$t.stats - mean(diff_resamples$t.stats)
+  
+
+  
+  @
+  
 \end{enumerate}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

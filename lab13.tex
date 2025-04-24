@@ -187,16 +187,120 @@ sampling distribution of the $T$ statistic:
   (i.e., here ensure the shifted resamples are 0 on average, corresponding
   to $t=0$, for each case). 
   
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{library}\hldef{(e1071)}
 
+\hldef{finch_data} \hlkwb{=} \hlkwd{read_csv}\hldef{(}\hlsng{"zebrafinches.csv"}\hldef{)}
+\hldef{further} \hlkwb{=} \hldef{finch_data}\hlopt{$}\hldef{further}
+\hldef{closer} \hlkwb{=} \hldef{finch_data}\hlopt{$}\hldef{closer}
+\hldef{diff} \hlkwb{=} \hldef{finch_data}\hlopt{$}\hldef{diff}
+\hldef{n} \hlkwb{=} \hlkwd{nrow}\hldef{(finch_data)}
+\hldef{m0} \hlkwb{=} \hlnum{0}
+
+\hlkwd{set.seed}\hldef{(}\hlnum{123}\hldef{)}
+\hldef{R} \hlkwb{<-} \hlnum{10000}
+\hldef{further_resamples} \hlkwb{<-} \hlkwd{tibble}\hldef{(}\hlkwc{t.stats}\hldef{=}\hlkwd{rep}\hldef{(}\hlnum{NA}\hldef{, R))}
+\hldef{closer_resamples} \hlkwb{=} \hlkwd{tibble}\hldef{(}\hlkwc{t.stats}\hldef{=}\hlkwd{rep}\hldef{(}\hlnum{NA}\hldef{, R))}
+\hldef{diff_resamples} \hlkwb{=} \hlkwd{tibble}\hldef{(}\hlkwc{t.stats}\hldef{=}\hlkwd{rep}\hldef{(}\hlnum{NA}\hldef{, R))}
+\hlkwa{for}\hldef{(i} \hlkwa{in} \hlnum{1}\hlopt{:}\hldef{R)\{}
+  \hldef{new_further_resample} \hlkwb{=} \hlkwd{sample}\hldef{(further,}
+                     \hlkwc{size} \hldef{= n,}
+                     \hlkwc{replace} \hldef{= T)}
+
+  \hldef{new_closer_resample} \hlkwb{=} \hlkwd{sample}\hldef{(closer,}
+                     \hlkwc{size} \hldef{= n,}
+                     \hlkwc{replace} \hldef{= T)}
+
+  \hldef{new_diff_resample} \hlkwb{=} \hlkwd{sample}\hldef{(diff,}
+                     \hlkwc{size} \hldef{= n,}
+                     \hlkwc{replace} \hldef{= T)}
+
+\hldef{further_resamples}\hlopt{$}\hldef{t.stats[i]} \hlkwb{<-} \hlkwd{mean}\hldef{(new_further_resample)}\hlopt{/}\hldef{(}\hlkwd{sd}\hldef{(further)}\hlopt{/}\hlkwd{sqrt}\hldef{(n))}
+\hldef{closer_resamples}\hlopt{$}\hldef{t.stats[i]} \hlkwb{=} \hlkwd{mean}\hldef{(new_closer_resample)}\hlopt{/}\hldef{(}\hlkwd{sd}\hldef{(closer)}\hlopt{/}\hlkwd{sqrt}\hldef{(n))}
+\hldef{diff_resamples}\hlopt{$}\hldef{t.stats[i]} \hlkwb{=} \hlkwd{mean}\hldef{(new_diff_resample)}\hlopt{/}\hldef{(}\hlkwd{sd}\hldef{(diff)}\hlopt{/}\hlkwd{sqrt}\hldef{(n))}
+\hldef{\}}
+\hlcom{# View(further_resamples)}
+
+\hldef{resamples.null.farther} \hlkwb{=} \hldef{further_resamples}\hlopt{$}\hldef{t.stats} \hlopt{-} \hlkwd{mean}\hldef{(further_resamples}\hlopt{$}\hldef{t.stats)}
+\hldef{resamples.null.closer} \hlkwb{=} \hldef{closer_resamples}\hlopt{$}\hldef{t.stats} \hlopt{-} \hlkwd{mean}\hldef{(closer_resamples}\hlopt{$}\hldef{t.stats)}
+\hldef{resamples.null.diff} \hlkwb{=} \hldef{diff_resamples}\hlopt{$}\hldef{t.stats} \hlopt{-} \hlkwd{mean}\hldef{(diff_resamples}\hlopt{$}\hldef{t.stats)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
   
   \item Compute the bootstrap $p$-value for each test using the shifted resamples. 
   How do these compare to the $t$-test $p$-values?
   
-
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{verbatim}
+## [1] 0
+## [1] 0
+## [1] 0
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
     \item What is the 5$^{th}$ percentile of the shifted resamples under the null hypothesis? 
   Note this value approximates $t_{0.05, n-1}$. Compare these values in each case.
+  
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{verbatim}
+## [1] "-1.68480212921038 is the 5th percentile of the shifted further data resamples"
+## [1] "-1.59314617071328 is the 5th percentile of the shifted closer data resamples"
+## [1] "-1.56409157711738 is the 5th percentile of the shifted diff data resamples"
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+  
   \item Compute the bootstrap confidence intervals using the resamples. How do these 
   compare to the $t$-test confidence intervals?
+  
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{library}\hldef{(e1071)}
+
+\hldef{finch_data} \hlkwb{=} \hlkwd{read_csv}\hldef{(}\hlsng{"zebrafinches.csv"}\hldef{)}
+\hldef{further} \hlkwb{=} \hldef{finch_data}\hlopt{$}\hldef{further}
+\hldef{closer} \hlkwb{=} \hldef{finch_data}\hlopt{$}\hldef{closer}
+\hldef{diff} \hlkwb{=} \hldef{finch_data}\hlopt{$}\hldef{diff}
+\hldef{n} \hlkwb{=} \hlkwd{nrow}\hldef{(finch_data)}
+\hldef{m0} \hlkwb{=} \hlnum{0}
+
+\hlkwd{set.seed}\hldef{(}\hlnum{123}\hldef{)}
+\hldef{R} \hlkwb{<-} \hlnum{10000}
+\hldef{further_resamples} \hlkwb{<-} \hlkwd{tibble}\hldef{(}\hlkwc{t.stats}\hldef{=}\hlkwd{rep}\hldef{(}\hlnum{NA}\hldef{, R))}
+\hldef{closer_resamples} \hlkwb{=} \hlkwd{tibble}\hldef{(}\hlkwc{t.stats}\hldef{=}\hlkwd{rep}\hldef{(}\hlnum{NA}\hldef{, R))}
+\hldef{diff_resamples} \hlkwb{=} \hlkwd{tibble}\hldef{(}\hlkwc{t.stats}\hldef{=}\hlkwd{rep}\hldef{(}\hlnum{NA}\hldef{, R))}
+\hlkwa{for}\hldef{(i} \hlkwa{in} \hlnum{1}\hlopt{:}\hldef{R)\{}
+  \hldef{new_further_resample} \hlkwb{=} \hlkwd{sample}\hldef{(further,}
+                     \hlkwc{size} \hldef{= n,}
+                     \hlkwc{replace} \hldef{= T)}
+
+  \hldef{new_closer_resample} \hlkwb{=} \hlkwd{sample}\hldef{(closer,}
+                     \hlkwc{size} \hldef{= n,}
+                     \hlkwc{replace} \hldef{= T)}
+
+  \hldef{new_diff_resample} \hlkwb{=} \hlkwd{sample}\hldef{(diff,}
+                     \hlkwc{size} \hldef{= n,}
+                     \hlkwc{replace} \hldef{= T)}
+
+\hldef{further_resamples}\hlopt{$}\hldef{t.stats[i]} \hlkwb{<-} \hlkwd{mean}\hldef{(new_further_resample)}\hlopt{/}\hldef{(}\hlkwd{sd}\hldef{(further)}\hlopt{/}\hlkwd{sqrt}\hldef{(n))}
+\hldef{closer_resamples}\hlopt{$}\hldef{t.stats[i]} \hlkwb{=} \hlkwd{mean}\hldef{(new_closer_resample)}\hlopt{/}\hldef{(}\hlkwd{sd}\hldef{(closer)}\hlopt{/}\hlkwd{sqrt}\hldef{(n))}
+\hldef{diff_resamples}\hlopt{$}\hldef{t.stats[i]} \hlkwb{=} \hlkwd{mean}\hldef{(new_diff_resample)}\hlopt{/}\hldef{(}\hlkwd{sd}\hldef{(diff)}\hlopt{/}\hlkwd{sqrt}\hldef{(n))}
+\hldef{\}}
+\hlcom{# View(further_resamples)}
+
+\hldef{resamples.null.farther} \hlkwb{=} \hldef{further_resamples}\hlopt{$}\hldef{t.stats} \hlopt{-} \hlkwd{mean}\hldef{(further_resamples}\hlopt{$}\hldef{t.stats)}
+\hldef{resamples.null.closer} \hlkwb{=} \hldef{closer_resamples}\hlopt{$}\hldef{t.stats} \hlopt{-} \hlkwd{mean}\hldef{(closer_resamples}\hlopt{$}\hldef{t.stats)}
+\hldef{resamples.null.diff} \hlkwb{=} \hldef{diff_resamples}\hlopt{$}\hldef{t.stats} \hlopt{-} \hlkwd{mean}\hldef{(diff_resamples}\hlopt{$}\hldef{t.stats)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+  
 \end{enumerate}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
