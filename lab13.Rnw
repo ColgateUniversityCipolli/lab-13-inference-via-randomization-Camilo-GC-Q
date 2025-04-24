@@ -410,7 +410,10 @@ for the closer, further, and difference data, so perform the randomization proce
   and the upper bound using $Q_3$ and increasing by 0.0001. You will continue until you find 
   the first value for which the two-sided $p$-value is greater than or equal to 0.05.
   <<echo = F, message = F, warning = F>>=
-    randomization_test = function(data, mu0 = 0, R = 10000){
+  library(e1071)
+
+  
+  randomization_test = function(data, mu0 = 0, R = 10000){
     x_shift = data-m0
     rand = tibble(xbars = rep(NA, R))
     
@@ -436,8 +439,24 @@ for the closer, further, and difference data, so perform the randomization proce
   }
   
   CI_randomization = function(data, alpha = 0.05, step = 0.0005){
-    mu
+    mu_hat = mean(data)
+    mu0_low = mu_hat
+    while(pval_randomization(data, mu0_low) < alpha){
+      mu0_low = mu0_low - step
+    }
+    
+    mu0_high = mu_hat
+    while(pval_randomization(data, mu0_high) < alpha){
+      mu0_high = mu0_high + step
+    }
+    
+    c(mu0_low, mu0_high)
   }
+  
+  finch_data = read_csv("zebrafinches.csv")
+  CI_randomization(finch_data$further)
+  CI_randomization(finch_data$closer)
+  CI_randomization(finch_data$diff)
   
   @
 \end{enumerate}
