@@ -365,12 +365,12 @@ for the closer, further, and difference data, so perform the randomization proce
   <<echo = T, message = F, warning = F>>=
   
   randomization_test = function(data, mu0 = 0, R = 10000){
-    x_shift = data-m0
+    x_shift = data-mu0
     rand = tibble(xbars = rep(NA, R))
     
     for (i in 1:R){
       curr.rand = x_shift * sample(c(-1,1), 
-                            length(x_shift),
+                            size = length(x_shift),
                             replace = T)
       rand$xbars[i] = mean(curr.rand)
     }
@@ -391,7 +391,7 @@ for the closer, further, and difference data, so perform the randomization proce
   pval_randomization = function(data, rand_samples, mu0 = 0){
     delta = abs(mean(data) - mu0)
     low = mu0 - delta
-    high = mu0 - delta
+    high = mu0 + delta
     mean(rand_samples <= low) + mean(rand_samples >= high)
   }
   
@@ -412,51 +412,72 @@ for the closer, further, and difference data, so perform the randomization proce
   <<echo = F, message = F, warning = F>>=
   library(e1071)
 
-  
-  randomization_test = function(data, mu0 = 0, R = 10000){
-    x_shift = data-m0
-    rand = tibble(xbars = rep(NA, R))
+  randomization_test_CI = function(data, R = 1000, alpha = 0.05, mu0_step = 0.01){
+    starting_point = mean(data)
     
-    for (i in 1:R){
-      curr.rand = x_shift * sample(c(-1,1), 
-                            length(x_shift),
-                            replace = T)
-      rand$xbars[i] = mean(curr.rand)
+    mu_lower = starting_point
+    repeat{
+      rand = tibble(xbars = rep(NA, R))
+      
+      x_shift = data - mu_lower
+      
+      for (i in 1:R){
+        curr_rand = x_shift * sample(c(-1,1), size = length(x_shift), replace = TRUE)
+        rand$xbars[i] = mean(curr_rand)
+      }
+      
+      rand = rand |>
+        mutate(xbars = xbars + mu_lower)
+      
+      delta = abs(mean(data) - mu_lower)
+      low = mu_lower - delta
+      high = mu_lower + delta
+      p_val = mean(rand$xbars <= low) + mean(rand$xbars >= high)
+      
+      if(p_val < alpha){
+        break
+      }
+      else {
+        mu_lower = mu_lower - mu0_step
+      }
     }
     
-    rand = rand |>
-      mutate(
-        xbars = xbars + mu0
-      )
-    return(rand$xbars)
-  }
-  
-  pval_randomization = function(data, rand_samples, mu0 = 0){
-    delta = abs(mean(data) - mu0)
-    low = mu0 - delta
-    high = mu0 - delta
-    mean(rand_samples <= low) + mean(rand_samples >= high)
-  }
-  
-  CI_randomization = function(data, alpha = 0.05, step = 0.0005){
-    mu_hat = mean(data)
-    mu0_low = mu_hat
-    while(pval_randomization(data, mu0_low) < alpha){
-      mu0_low = mu0_low - step
+    mu_upper = starting_point
+    
+    repeat{
+      rand = tibble(xbars = rep(NA, R))
+      
+      x_shift = data - mu_upper
+      
+      for (i in 1:R){
+        curr_rand = x_shift * sample(c(-1,1), size = length(x_shift), replace = TRUE)
+        rand$xbars[i] = mean(curr_rand)
+      }
+      
+      rand = rand |>
+        mutate(xbars = xbars + mu_upper)
+      
+      delta = abs(mean(data) - mu_upper)
+      low = mu_upper - delta
+      high = mu_upper + delta
+      p_val = mean(rand$xbars <= low) + mean(rand$xbars >= high)
+      
+      if(p_val < alpha){
+        break
+      }
+      else {
+        mu_upper = mu_upper + mu0_step
+      }
     }
     
-    mu0_high = mu_hat
-    while(pval_randomization(data, mu0_high) < alpha){
-      mu0_high = mu0_high + step
-    }
-    
-    c(mu0_low, mu0_high)
+    c(mu_lower, mu_upper)
   }
   
   finch_data = read_csv("zebrafinches.csv")
-  CI_randomization(finch_data$further)
-  CI_randomization(finch_data$closer)
-  CI_randomization(finch_data$diff)
+  randomization_test_CI(finch_data$further)
+  randomization_test_CI(finch_data$closer)
+  randomization_test_CI(finch_data$diff)
+  
   
   @
 \end{enumerate}
@@ -487,4 +508,6 @@ of interest?
 \end{enumerate}
 \bibliography{bibliography}
 \end{document}
+
+
 

@@ -395,12 +395,12 @@ for the closer, further, and difference data, so perform the randomization proce
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hldef{randomization_test} \hlkwb{=} \hlkwa{function}\hldef{(}\hlkwc{data}\hldef{,} \hlkwc{mu0} \hldef{=} \hlnum{0}\hldef{,} \hlkwc{R} \hldef{=} \hlnum{10000}\hldef{)\{}
-  \hldef{x_shift} \hlkwb{=} \hldef{data}\hlopt{-}\hldef{m0}
+  \hldef{x_shift} \hlkwb{=} \hldef{data}\hlopt{-}\hldef{mu0}
   \hldef{rand} \hlkwb{=} \hlkwd{tibble}\hldef{(}\hlkwc{xbars} \hldef{=} \hlkwd{rep}\hldef{(}\hlnum{NA}\hldef{, R))}
 
   \hlkwa{for} \hldef{(i} \hlkwa{in} \hlnum{1}\hlopt{:}\hldef{R)\{}
     \hldef{curr.rand} \hlkwb{=} \hldef{x_shift} \hlopt{*} \hlkwd{sample}\hldef{(}\hlkwd{c}\hldef{(}\hlopt{-}\hlnum{1}\hldef{,}\hlnum{1}\hldef{),}
-                          \hlkwd{length}\hldef{(x_shift),}
+                          \hlkwc{size} \hldef{=} \hlkwd{length}\hldef{(x_shift),}
                           \hlkwc{replace} \hldef{= T)}
     \hldef{rand}\hlopt{$}\hldef{xbars[i]} \hlkwb{=} \hlkwd{mean}\hldef{(curr.rand)}
   \hldef{\}}
@@ -421,7 +421,7 @@ for the closer, further, and difference data, so perform the randomization proce
 \hldef{pval_randomization} \hlkwb{=} \hlkwa{function}\hldef{(}\hlkwc{data}\hldef{,} \hlkwc{rand_samples}\hldef{,} \hlkwc{mu0} \hldef{=} \hlnum{0}\hldef{)\{}
   \hldef{delta} \hlkwb{=} \hlkwd{abs}\hldef{(}\hlkwd{mean}\hldef{(data)} \hlopt{-} \hldef{mu0)}
   \hldef{low} \hlkwb{=} \hldef{mu0} \hlopt{-} \hldef{delta}
-  \hldef{high} \hlkwb{=} \hldef{mu0} \hlopt{-} \hldef{delta}
+  \hldef{high} \hlkwb{=} \hldef{mu0} \hlopt{+} \hldef{delta}
   \hlkwd{mean}\hldef{(rand_samples} \hlopt{<=} \hldef{low)} \hlopt{+} \hlkwd{mean}\hldef{(rand_samples} \hlopt{>=} \hldef{high)}
 \hldef{\}}
 
@@ -432,19 +432,19 @@ for the closer, further, and difference data, so perform the randomization proce
 \hldef{pval_further}
 \end{alltt}
 \begin{verbatim}
-## [1] 1
+## [1] 0
 \end{verbatim}
 \begin{alltt}
 \hldef{pval_closer}
 \end{alltt}
 \begin{verbatim}
-## [1] 1
+## [1] 0
 \end{verbatim}
 \begin{alltt}
 \hldef{pval_diff}
 \end{alltt}
 \begin{verbatim}
-## [1] 1
+## [1] 0
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -456,9 +456,9 @@ for the closer, further, and difference data, so perform the randomization proce
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{verbatim}
-## [1] -0.2027244 -0.2027244
-## [1] 0.1562231 0.1562231
-## [1] 0.3589475 0.3589475
+## [1] -0.2627244 -0.1427244
+## [1] 0.1162231 0.1962231
+## [1] 0.2689475 0.4589475
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -490,4 +490,6 @@ of interest?
 \end{enumerate}
 \bibliography{bibliography}
 \end{document}
+
+
 
