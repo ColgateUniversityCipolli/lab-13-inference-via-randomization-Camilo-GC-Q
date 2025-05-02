@@ -173,7 +173,7 @@ The graph shows how much skewness might affect the approximation error at variou
 \end{kframe}
 \end{knitrout}
   
-For the t-test's approximation to be accurate within $10\%$ of the p-value, we need ~$521$ samples.
+For the t-test's approximation to be accurate within $10\%$ of the p-value, we need approximately $521$ samples.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -250,6 +250,10 @@ sampling distribution of the $T$ statistic:
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
+   
+All the bootstrap p-values are 0, suggesting strong evidence against the null in all the data.
+
+   
     \item What is the 5$^{th}$ percentile of the shifted resamples under the null hypothesis? 
   Note this value approximates $t_{0.05, n-1}$. Compare these values in each case.
   
@@ -259,9 +263,13 @@ sampling distribution of the $T$ statistic:
 ## [1] "-1.68480212921038 is the 5th percentile of the shifted further data resamples"
 ## [1] "-1.59314617071328 is the 5th percentile of the shifted closer data resamples"
 ## [1] "-1.56409157711738 is the 5th percentile of the shifted diff data resamples"
+## [1] -1.710882
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
+  
+The data has a $t_{0.05, n-1} = -1.711$ which is more extreme than all three of the bootstrapped critical values. This suggests that the boostrap method might be better to use than the t-test. This is because the values indicate the bootstrap has a tighter distribution.
+  
   
   \item Compute the bootstrap confidence intervals using the resamples. How do these 
   compare to the $t$-test confidence intervals?
@@ -354,6 +362,9 @@ sampling distribution of the $T$ statistic:
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
+  
+the Bootstrap CIs are wider than the t-CIs. 
+  
   
 \end{enumerate}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -457,6 +468,9 @@ for the closer, further, and difference data, so perform the randomization proce
 \end{kframe}
 \end{knitrout}
   
+Because all three p-values are 0, there is strong evidence against the null hypothesis across all the data.
+  
+  
   \item Compute the randomization confidence interval by iterating over values of $\mu_0$.\\
   \textbf{Hint:} You can ``search" for the lower bound from $Q_1$ and subtracting by 0.0001, 
   and the upper bound using $Q_3$ and increasing by 0.0001. You will continue until you find 
@@ -470,6 +484,9 @@ for the closer, further, and difference data, so perform the randomization proce
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
+
+
+
 \end{enumerate}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
