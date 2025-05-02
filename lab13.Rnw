@@ -50,6 +50,9 @@ for the the further observations.
   error
   @
 
+The small error value (error $\approx -1.226e-13$) indicates almost no additional error suggesting that the t-test is reliable in this case.
+
+
   \item Compute the error for $t$ statistics from -10 to 10 and plot a line
   that shows the error across $t$. Continue to use the skewness and 
   the sample size for the zebra finch further data.
@@ -74,6 +77,9 @@ for the the further observations.
   
   @
 
+The graph shows how much skewness might affect the approximation error at various t-values. The two peaks of errors show where the t-test accuracy is the worst.
+
+
   \item Suppose we wanted to have a tail probability within 10\% of the desired
   $\alpha=0.05$. Recall we did a left-tailed test using the further data.
   How large of a sample size would we need? That is, we need
@@ -90,12 +96,14 @@ for the the further observations.
   # View(finch_data)
   further = finch_data$further
   alpha = 0.05
-  n = length(further)
   t = qnorm(alpha)
   skewness(further)
   n = ((skewness(further)/(6*0.1*0.05)) * (2*t^2 + 1) * dnorm(t))^2
   n
   @
+  
+For the t-test's approximation to be accurate within $10\%$ of the p-value, we need ~$521$ samples.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
